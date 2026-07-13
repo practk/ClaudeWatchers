@@ -713,6 +713,37 @@ body.mini-mode #view-mini {
   font-variant-numeric: tabular-nums;
 }
 
+/* ---- mini 通知列 ---- */
+
+#mini-notice {
+  flex-shrink: 0;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  border-top: 1px solid #2c2f36;
+  border-left: 3px solid #3b82f6;
+  background: #1f2228;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  animation: bubble-in 0.18s ease-out;
+}
+
+#mini-notice[hidden] {
+  display: none;
+}
+
+#mini-notice.notice-done {
+  border-left-color: #22c55e;
+}
+
+#mini-notice.notice-waiting {
+  border-left-color: #f59e0b;
+}
+
 /* ---- 泡泡通知 ---- */
 
 #bubble-layer {

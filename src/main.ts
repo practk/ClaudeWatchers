@@ -114,7 +114,11 @@ async function initNotification(): Promise<void> {
 
 function notify(title: string, body: string, kind: BubbleKind = "info"): void {
   if (settings.notifyStyle === "bubble") {
-    showBubble(kind, title, body);
+    if (miniMode) {
+      showMiniNotice(kind, title);
+    } else {
+      showBubble(kind, title, body);
+    }
   } else if (notifyGranted) {
     sendNotification({ title, body });
   }
@@ -145,6 +149,21 @@ let miniMode = false;
 let savedSize: PhysicalSize | null = null;
 let lastMiniHeight = 0;
 
+/** mini 模式底部通知列:泡泡在小視窗會遮列表,改為長出一條通知列再收回 */
+const MINI_NOTICE_MS = 4000;
+let miniNotice: { kind: BubbleKind; text: string } | null = null;
+let miniNoticeTimer = 0;
+
+function showMiniNotice(kind: BubbleKind, text: string): void {
+  miniNotice = { kind, text };
+  clearTimeout(miniNoticeTimer);
+  miniNoticeTimer = window.setTimeout(() => {
+    miniNotice = null;
+    render();
+  }, MINI_NOTICE_MS);
+  render();
+}
+
 async function enterMiniMode(): Promise<void> {
   const win = getCurrentWindow();
   savedSize = await win.innerSize().catch(() => null);
@@ -163,6 +182,8 @@ async function enterMiniMode(): Promise<void> {
 
 async function exitMiniMode(): Promise<void> {
   miniMode = false;
+  miniNotice = null;
+  clearTimeout(miniNoticeTimer);
   document.body.classList.remove("mini-mode");
   const win = getCurrentWindow();
   try {
@@ -193,8 +214,16 @@ function renderMini(): void {
           )
           .join("");
 
-  // session 數變動時調整視窗高度
-  const h = miniWindowHeight(rows.length);
+  const noticeEl = document.querySelector<HTMLDivElement>("#mini-notice")!;
+  noticeEl.hidden = miniNotice === null;
+  if (miniNotice) {
+    noticeEl.className = `notice-${miniNotice.kind}`;
+    noticeEl.textContent = miniNotice.text;
+    noticeEl.title = miniNotice.text;
+  }
+
+  // session 數或通知列變動時調整視窗高度
+  const h = miniWindowHeight(rows.length, miniNotice !== null);
   if (h !== lastMiniHeight) {
     lastMiniHeight = h;
     getCurrentWindow()

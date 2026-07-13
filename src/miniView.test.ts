@@ -3,6 +3,7 @@ import {
   buildMiniRows,
   miniWindowHeight,
   MINI_DRAG_H,
+  MINI_NOTICE_H,
   MINI_ROW_H,
   MAX_VISIBLE_ROWS,
 } from "./miniView";
@@ -47,5 +48,10 @@ describe("miniWindowHeight", () => {
 
   it("超過上限固定高度", () => {
     expect(miniWindowHeight(20)).toBe(MINI_DRAG_H + MAX_VISIBLE_ROWS * MINI_ROW_H + 6);
+  });
+
+  it("通知列顯示時加高 MINI_NOTICE_H", () => {
+    expect(miniWindowHeight(3, true)).toBe(MINI_DRAG_H + 3 * MINI_ROW_H + 6 + MINI_NOTICE_H);
+    expect(miniWindowHeight(3, false)).toBe(MINI_DRAG_H + 3 * MINI_ROW_H + 6);
   });
 });
