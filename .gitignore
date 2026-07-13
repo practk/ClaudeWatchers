@@ -11,6 +11,7 @@ node_modules
 dist
 dist-ssr
 dist-share
+.vite
 *.local
 
 # 本地規劃文件(不公開)
