@@ -15,6 +15,7 @@ import {
   type SessionInfo,
 } from "./sessionStore";
 import { launchConfetti } from "./confetti";
+import { showBubble, type BubbleKind } from "./bubbles";
 import { buildMiniRows, miniWindowHeight, MINI_WIDTH } from "./miniView";
 import {
   aggregateTools,
@@ -46,12 +47,14 @@ interface AppSettings {
   notifyDone: boolean;
   notifyWaiting: boolean;
   alwaysOnTop: boolean;
+  notifyStyle: "windows" | "bubble";
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
   notifyDone: true,
   notifyWaiting: true,
   alwaysOnTop: false,
+  notifyStyle: "windows",
 };
 
 const SETTINGS_KEY = "cw-settings";
@@ -75,7 +78,8 @@ function applyAlwaysOnTop(): void {
 }
 
 function setupSettings(): void {
-  const bind = (id: string, key: keyof AppSettings, onChange?: () => void) => {
+  type BoolSettingKey = "notifyDone" | "notifyWaiting" | "alwaysOnTop";
+  const bind = (id: string, key: BoolSettingKey, onChange?: () => void) => {
     const box = document.querySelector<HTMLInputElement>(`#${id}`)!;
     box.checked = settings[key];
     box.addEventListener("change", () => {
@@ -87,6 +91,16 @@ function setupSettings(): void {
   bind("set-notify-done", "notifyDone");
   bind("set-notify-waiting", "notifyWaiting");
   bind("set-always-top", "alwaysOnTop", applyAlwaysOnTop);
+
+  const styleWin = document.querySelector<HTMLInputElement>("#style-windows")!;
+  const styleBubble = document.querySelector<HTMLInputElement>("#style-bubble")!;
+  (settings.notifyStyle === "bubble" ? styleBubble : styleWin).checked = true;
+  for (const radio of [styleWin, styleBubble]) {
+    radio.addEventListener("change", () => {
+      settings.notifyStyle = styleBubble.checked ? "bubble" : "windows";
+      saveSettings();
+    });
+  }
 }
 
 let notifyGranted = false;
@@ -98,8 +112,12 @@ async function initNotification(): Promise<void> {
   }
 }
 
-function notify(title: string, body: string): void {
-  if (notifyGranted) sendNotification({ title, body });
+function notify(title: string, body: string, kind: BubbleKind = "info"): void {
+  if (settings.notifyStyle === "bubble") {
+    showBubble(kind, title, body);
+  } else if (notifyGranted) {
+    sendNotification({ title, body });
+  }
 }
 
 /** waiting 通知的延遲確認時間：期間 session 恢復活動（auto 模式自動授權）就不吵使用者 */
@@ -112,7 +130,7 @@ function scheduleWaitingToast(sessionId: string, title: string, body: string): v
   const timer = window.setTimeout(() => {
     pendingWaitingToasts.delete(sessionId);
     // 到期時仍在 waiting 才代表真的需要使用者決策
-    if (store.get(sessionId)?.status === "waiting") notify(title, body);
+    if (store.get(sessionId)?.status === "waiting") notify(title, body, "waiting");
   }, WAITING_TOAST_DELAY_MS);
   pendingWaitingToasts.set(sessionId, timer);
 }
@@ -504,10 +522,10 @@ window.addEventListener("DOMContentLoaded", async () => {
     } else if (event.payload.hook_event_name === "PreToolUse") {
       // 選項提問(AskUserQuestion)必定需要人回答,立即通知、不套延遲確認
       if (settings.notifyWaiting) {
-        notify(notice.title, notice.body);
+        notify(notice.title, notice.body, "waiting");
       }
     } else if (settings.notifyDone) {
-      notify(notice.title, notice.body);
+      notify(notice.title, notice.body, "done");
     }
   });
 
