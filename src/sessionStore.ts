@@ -96,6 +96,16 @@ export class SessionStore {
           body: typeof event.message === "string" ? event.message : "Claude Code 正在等待你的回應",
         };
         break;
+      case "PreToolUse":
+        // 只有 AskUserQuestion(選項提問)需要人回答;hook 端 matcher 也只轉發它
+        if (event.tool_name === "AskUserQuestion") {
+          session.status = "waiting";
+          notice = {
+            title: `❓ ${session.project} — 等待回答`,
+            body: "Claude 正在等你回答選項問題",
+          };
+        }
+        break;
       case "Stop":
         notice = {
           title: `✅ ${session.project} — 回覆完成`,

@@ -501,6 +501,11 @@ window.addEventListener("DOMContentLoaded", async () => {
       if (settings.notifyWaiting) {
         scheduleWaitingToast(event.payload.session_id, notice.title, notice.body);
       }
+    } else if (event.payload.hook_event_name === "PreToolUse") {
+      // 選項提問(AskUserQuestion)必定需要人回答,立即通知、不套延遲確認
+      if (settings.notifyWaiting) {
+        notify(notice.title, notice.body);
+      }
     } else if (settings.notifyDone) {
       notify(notice.title, notice.body);
     }

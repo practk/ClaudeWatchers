@@ -26,7 +26,8 @@ npm run tauri build
 
 ## Hooks 安裝
 
-已合併於 `~/.claude/settings.json` 的 `hooks` 區段，六個事件共用同一條指令：
+已合併於 `~/.claude/settings.json` 的 `hooks` 區段，七個事件共用同一條指令
+（`PreToolUse` 需設 `"matcher": "AskUserQuestion"` 只轉發選項提問，其餘六個不設 matcher）：
 
 ```
 curl.exe -s -m 1 -o nul -X POST http://127.0.0.1:47821/event -H "Content-Type: application/json" --data-binary @-
@@ -53,6 +54,11 @@ curl.exe -X POST http://127.0.0.1:47821/event -H "Content-Type: application/json
 每輪對話結束（`Stop` 事件）時解析該 session 的 transcript JSONL，以訊息 id 去重加總 `usage`，
 用「session 快照差額」制累積到「日期 × 專案」，落地於 `%APPDATA%\com.practk8001.claudewatchers\usage.json`。
 面板「用量統計」分頁顯示今日/近7日/累積輸出量、近 14 天長條圖與專案排行。
+
+## 選項提問偵測(v0.7.1)
+
+Claude 用選項提問(AskUserQuestion)等你作答時,面板轉「等待授權」並立即跳「等待回答」通知
+(靠 `PreToolUse` hook 偵測;此情境必等人回答,不套等授權的 6 秒延遲確認)。
 
 ## 縮小模式(v0.7.0)
 

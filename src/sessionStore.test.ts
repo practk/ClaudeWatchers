@@ -82,6 +82,28 @@ describe("SessionStore 狀態機", () => {
     expect(store.get("s1")?.status).toBe("working");
   });
 
+  it("PreToolUse AskUserQuestion → waiting + 等待回答通知", () => {
+    const store = new SessionStore();
+    store.apply(evt("UserPromptSubmit"));
+
+    const notice = store.apply(evt("PreToolUse", { tool_name: "AskUserQuestion" }));
+    expect(store.get("s1")?.status).toBe("waiting");
+    expect(notice?.title).toContain("等待回答");
+
+    // 回答後 PostToolUse 恢復 working
+    store.apply(evt("PostToolUse", { tool_name: "AskUserQuestion" }));
+    expect(store.get("s1")?.status).toBe("working");
+  });
+
+  it("其他工具的 PreToolUse 不改變狀態、不通知", () => {
+    const store = new SessionStore();
+    store.apply(evt("UserPromptSubmit"));
+
+    const notice = store.apply(evt("PreToolUse", { tool_name: "Bash" }));
+    expect(store.get("s1")?.status).toBe("working");
+    expect(notice).toBeNull();
+  });
+
   it("缺 session_id 或 hook_event_name 的事件應忽略", () => {
     const store = new SessionStore();
     store.apply({ hook_event_name: "Stop" } as HookEvent);
