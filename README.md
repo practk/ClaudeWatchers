@@ -2,8 +2,6 @@
 
 Claude Code 狀態監控桌面程式（Windows 常駐系統匣）。即時顯示所有 Claude Code session 的工作狀態，在「回覆完成」與「等待授權」時跳 Windows 通知。
 
-架構與設計決策見 [PLAN.md](PLAN.md)。
-
 ## 運作原理
 
 Claude Code hooks（`SessionStart` / `UserPromptSubmit` / `Notification` / `Stop` / `SessionEnd` / `PostToolUse`）觸發時，用 `curl.exe` 把 hook stdin 的 JSON 轉發到 `http://127.0.0.1:47821/event`。本程式的 Rust 端 HTTP server 收到後轉發給前端狀態機，更新面板並發 toast 通知。
