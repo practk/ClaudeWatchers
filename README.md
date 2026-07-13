@@ -55,6 +55,11 @@ curl.exe -X POST http://127.0.0.1:47821/event -H "Content-Type: application/json
 用「session 快照差額」制累積到「日期 × 專案」，落地於 `%APPDATA%\com.practk8001.claudewatchers\usage.json`。
 面板「用量統計」分頁顯示今日/近7日/累積輸出量、近 14 天長條圖與專案排行。
 
+## 通知方式(v0.7.2)
+
+設定頁可選:**Windows 通知**(現行,會進通知中心)或**視窗泡泡**(視窗右下角彈出、
+4 秒淡出、閱後即焚;視窗隱藏時看不到,適合搭配縮小模式 + 置頂使用)。
+
 ## 選項提問偵測(v0.7.1)
 
 Claude 用選項提問(AskUserQuestion)等你作答時,面板轉「等待授權」並立即跳「等待回答」通知
