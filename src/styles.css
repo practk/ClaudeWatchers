@@ -1,0 +1,708 @@
+:root {
+  font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #e4e6eb;
+  background-color: #17191d;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+body {
+  padding: 0 16px 16px;
+  user-select: none;
+}
+
+.app-header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 14px 2px 12px;
+  border-bottom: 1px solid #2c2f36;
+  margin-bottom: 12px;
+}
+
+.app-header h1 {
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.icon-btn {
+  margin-left: auto;
+  font: inherit;
+  font-size: 1rem;
+  color: #8a8f99;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+.icon-btn:hover {
+  color: #e4e6eb;
+}
+
+.icon-btn.active {
+  color: #e4e6eb;
+  background: #1f2228;
+  border-color: #2c2f36;
+}
+
+.settings-card {
+  background: #1f2228;
+  border: 1px solid #2c2f36;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.settings-title {
+  font-size: 0.72rem;
+  color: #8a8f99;
+  margin: 10px 0 6px;
+}
+
+.settings-title:first-child {
+  margin-top: 0;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.setting-row input[type="checkbox"] {
+  accent-color: #3b82f6;
+  width: 15px;
+  height: 15px;
+}
+
+.subtitle {
+  font-size: 0.78rem;
+  color: #8a8f99;
+}
+
+#empty-hint {
+  text-align: center;
+  color: #8a8f99;
+  font-size: 0.85rem;
+  padding: 48px 12px;
+}
+
+.session-card {
+  background: #1f2228;
+  border: 1px solid #2c2f36;
+  border-left: 3px solid #4a4f5a;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+
+.session-card.status-working {
+  border-left-color: #3b82f6;
+}
+.session-card.status-waiting {
+  border-left-color: #f59e0b;
+}
+.session-card.status-done {
+  border-left-color: #22c55e;
+}
+
+.session-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.project {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.badge {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #3a3f49;
+  color: #c9cdd5;
+}
+
+.badge-working {
+  background: #1d4ed8;
+  color: #dbeafe;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.badge-waiting {
+  background: #b45309;
+  color: #fef3c7;
+}
+
+.badge-done {
+  background: #15803d;
+  color: #dcfce7;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.session-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 0.76rem;
+  color: #8a8f99;
+}
+
+/* ---- 分頁 ---- */
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.tab {
+  font: inherit;
+  font-size: 0.82rem;
+  color: #8a8f99;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 4px 12px;
+  cursor: pointer;
+}
+
+.tab:hover {
+  color: #c9cdd5;
+}
+
+.tab.active {
+  color: #e4e6eb;
+  background: #1f2228;
+  border-color: #2c2f36;
+}
+
+/* ---- 統計頁 ---- */
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.tile {
+  background: #1f2228;
+  border: 1px solid #2c2f36;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tile-label {
+  font-size: 0.72rem;
+  color: #8a8f99;
+}
+
+.tile-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-card {
+  position: relative;
+  background: #1f2228;
+  border: 1px solid #2c2f36;
+  border-radius: 8px;
+  padding: 10px 12px 8px;
+  margin-bottom: 10px;
+}
+
+.chart-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.chart-title {
+  font-size: 0.78rem;
+  color: #c9cdd5;
+}
+
+.chart-max {
+  font-size: 0.72rem;
+  color: #8a8f99;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 110px;
+  border-bottom: 1px solid #2c2f36;
+}
+
+.bar-slot {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  cursor: default;
+}
+
+.bar-slot:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.bar {
+  width: 70%;
+  background: #3b82f6;
+  border-radius: 4px 4px 0 0;
+}
+
+.chart-axis {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  color: #8a8f99;
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-tooltip {
+  position: absolute;
+  bottom: 52px;
+  transform: translateX(-50%);
+  background: #14161a;
+  border: 1px solid #3a3f49;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.72rem;
+  line-height: 1.6;
+  color: #c9cdd5;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+/* ---- 活動熱力圖 ---- */
+
+.heatmap-scroll {
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.heatmap-months {
+  position: relative;
+  height: 16px;
+  margin-left: 22px;
+  font-size: 0.66rem;
+  color: #8a8f99;
+}
+
+.heatmap-months span {
+  position: absolute;
+  top: 0;
+  white-space: nowrap;
+}
+
+.heatmap-body {
+  display: flex;
+  gap: 4px;
+}
+
+.heatmap-daylabels {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 13px 0;
+  width: 18px;
+  font-size: 0.66rem;
+  color: #8a8f99;
+  flex-shrink: 0;
+}
+
+.heatmap-grid {
+  display: flex;
+  gap: 2px;
+}
+
+.heat-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.heat-cell {
+  width: 11px;
+  height: 11px;
+  border-radius: 2px;
+  display: block;
+}
+
+.heat-future {
+  background: transparent;
+}
+
+.heat-0 {
+  background: #262a31;
+}
+.heat-1 {
+  background: #1e3a6e;
+}
+.heat-2 {
+  background: #1d4ed8;
+}
+.heat-3 {
+  background: #3b82f6;
+}
+.heat-4 {
+  background: #93c5fd;
+}
+
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  justify-content: flex-end;
+  margin-top: 8px;
+  font-size: 0.66rem;
+  color: #8a8f99;
+}
+
+.heatmap-legend i {
+  width: 11px;
+  height: 11px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+/* ---- 工具使用 ---- */
+
+.tools-card {
+  margin-top: 10px;
+}
+
+.tool-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+  font-size: 0.76rem;
+}
+
+.tool-name {
+  width: 120px;
+  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #c9cdd5;
+}
+
+.tool-bar {
+  flex: 1;
+  height: 8px;
+  background: #262a31;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.tool-fill {
+  display: block;
+  height: 100%;
+  background: #3b82f6;
+  border-radius: 4px;
+}
+
+.tool-count {
+  flex-shrink: 0;
+  min-width: 80px;
+  text-align: right;
+  color: #8a8f99;
+  font-variant-numeric: tabular-nums;
+}
+
+.tools-empty {
+  font-size: 0.76rem;
+  color: #8a8f99;
+  padding: 8px 0;
+}
+
+/* ---- 彩帶 ---- */
+
+.confetti-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* ---- 里程碑 ---- */
+
+.milestone-track {
+  padding: 8px 0;
+}
+
+.milestone-track + .milestone-track {
+  border-top: 1px solid #23262c;
+}
+
+.milestone-name {
+  font-size: 0.72rem;
+  color: #8a8f99;
+  margin-bottom: 6px;
+}
+
+.badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.badge-chip {
+  font-size: 0.72rem;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #262a31;
+  color: #6b7078;
+  border: 1px solid #2c2f36;
+}
+
+.badge-chip.achieved {
+  background: #1d4ed8;
+  color: #dbeafe;
+  border-color: #1d4ed8;
+}
+
+.next-goal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.next-label {
+  font-size: 0.7rem;
+  color: #8a8f99;
+  white-space: nowrap;
+}
+
+.next-goal.all-done {
+  font-size: 0.72rem;
+  color: #22c55e;
+}
+
+.progress-track {
+  flex: 1;
+  height: 5px;
+  background: #262a31;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  display: block;
+  height: 100%;
+  background: #3b82f6;
+  border-radius: 999px;
+}
+
+.project-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.project-table th {
+  text-align: left;
+  font-weight: 500;
+  font-size: 0.72rem;
+  color: #8a8f99;
+  padding: 4px 8px;
+  border-bottom: 1px solid #2c2f36;
+}
+
+.project-table td {
+  padding: 5px 8px;
+  border-bottom: 1px solid #23262c;
+  font-variant-numeric: tabular-nums;
+}
+
+.project-table .project-name {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.project-table th:not(:first-child),
+.project-table td:not(:first-child) {
+  text-align: right;
+}
+
+.recent-row td {
+  font-size: 0.72rem;
+  color: #8a8f99;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  border-bottom: none;
+}
+
+.recent-row td:not(:first-child) {
+  text-align: left;
+}
+
+.recent-when {
+  white-space: nowrap;
+}
+
+.stats-empty {
+  text-align: center;
+  color: #8a8f99;
+  font-size: 0.85rem;
+  padding: 32px 12px;
+}
+
+/* ---- 縮小模式 ---- */
+
+.icon-btn + .icon-btn {
+  margin-left: 4px; /* 第二顆起不再吃 auto margin,兩顆靠右並排 */
+}
+
+#view-mini {
+  display: none;
+}
+
+body.mini-mode {
+  padding: 0;
+  overflow: hidden;
+}
+
+body.mini-mode .app-header,
+body.mini-mode .tabs,
+body.mini-mode main {
+  display: none;
+}
+
+body.mini-mode #view-mini {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.mini-drag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 30px;
+  padding: 0 4px 0 10px;
+  background: #1f2228;
+  border-bottom: 1px solid #2c2f36;
+  flex-shrink: 0;
+  cursor: grab;
+}
+
+.mini-title {
+  flex: 1;
+  font-size: 0.72rem;
+  color: #8a8f99;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.mini-btn {
+  font: inherit;
+  font-size: 0.8rem;
+  color: #8a8f99;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  padding: 2px 7px;
+  cursor: pointer;
+}
+
+.mini-btn:hover {
+  color: #e4e6eb;
+  background: #2c2f36;
+}
+
+#mini-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 3px 0;
+}
+
+.mini-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 28px;
+  padding: 0 10px;
+  font-size: 0.8rem;
+}
+
+.mini-empty {
+  color: #8a8f99;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: #4a4f5a;
+}
+
+.dot-working {
+  background: #3b82f6;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.dot-waiting {
+  background: #f59e0b;
+}
+
+.dot-done {
+  background: #22c55e;
+}
+
+.mini-project {
+  flex: 1;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mini-detail {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  color: #8a8f99;
+  font-variant-numeric: tabular-nums;
+}

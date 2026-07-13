@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ClaudeWatchers</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+    <script type="module" src="/src/main.ts" defer></script>
+  </head>
+  <body>
+    <div id="view-mini">
+      <div class="mini-drag" data-tauri-drag-region>
+        <span class="mini-title" data-tauri-drag-region>ClaudeWatchers</span>
+        <button id="mini-restore" class="mini-btn" title="還原完整視窗">⤢</button>
+        <button id="mini-hide" class="mini-btn" title="縮到系統匣">✕</button>
+      </div>
+      <div id="mini-list"></div>
+    </div>
+    <header class="app-header">
+      <h1>ClaudeWatchers</h1>
+      <span class="subtitle">Claude Code session 監控</span>
+      <button id="btn-mini" class="icon-btn" title="縮小模式">🗕</button>
+      <button id="btn-settings" class="icon-btn" title="設定">⚙</button>
+    </header>
+    <nav class="tabs">
+      <button class="tab active" data-view="sessions">Sessions</button>
+      <button class="tab" data-view="stats">用量統計</button>
+      <button class="tab" data-view="activity">活動</button>
+    </nav>
+    <main>
+      <section id="view-sessions">
+        <div id="empty-hint">目前沒有活躍的 session。<br />在 VS Code 開啟 Claude Code 對話後會自動出現。</div>
+        <div id="session-list"></div>
+      </section>
+      <section id="view-activity" hidden>
+        <div class="chart-card">
+          <div class="chart-head">
+            <span class="chart-title" id="heatmap-headline">過去一年</span>
+          </div>
+          <div class="heatmap-scroll">
+            <div class="heatmap-months" id="heatmap-months"></div>
+            <div class="heatmap-body">
+              <div class="heatmap-daylabels"><span>一</span><span>三</span><span>五</span></div>
+              <div class="heatmap-grid" id="heatmap-grid"></div>
+            </div>
+          </div>
+          <div class="heatmap-legend">
+            <span>Less</span>
+            <i class="heat-0"></i><i class="heat-1"></i><i class="heat-2"></i><i class="heat-3"></i><i class="heat-4"></i>
+            <span>More</span>
+          </div>
+        </div>
+        <div class="tiles">
+          <div class="tile">
+            <span class="tile-label">🔥 目前連續</span>
+            <span class="tile-value" id="streak-current">0 天</span>
+          </div>
+          <div class="tile">
+            <span class="tile-label">🏅 歷史最長</span>
+            <span class="tile-value" id="streak-longest">0 天</span>
+          </div>
+          <div class="tile">
+            <span class="tile-label">⚡ 單日峰值</span>
+            <span class="tile-value" id="streak-best">—</span>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-head"><span class="chart-title">里程碑</span></div>
+          <div id="milestones"></div>
+        </div>
+      </section>
+      <section id="view-settings" hidden>
+        <div class="settings-card">
+          <div class="settings-title">通知</div>
+          <label class="setting-row">
+            <input type="checkbox" id="set-notify-done" />
+            <span>回覆完成時通知</span>
+          </label>
+          <label class="setting-row">
+            <input type="checkbox" id="set-notify-waiting" />
+            <span>等待授權時通知</span>
+          </label>
+          <div class="settings-title">視窗</div>
+          <label class="setting-row">
+            <input type="checkbox" id="set-always-top" />
+            <span>保持在所有視窗最上層</span>
+          </label>
+        </div>
+      </section>
+      <section id="view-stats" hidden>
+        <div class="tiles">
+          <div class="tile">
+            <span class="tile-label">今日輸出</span>
+            <span class="tile-value" id="tile-today">0</span>
+          </div>
+          <div class="tile">
+            <span class="tile-label">近 7 日輸出</span>
+            <span class="tile-value" id="tile-week">0</span>
+          </div>
+          <div class="tile">
+            <span class="tile-label">累積輸出</span>
+            <span class="tile-value" id="tile-all">0</span>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-head">
+            <span class="chart-title">近 14 天輸出 tokens</span>
+            <span class="chart-max" id="chart-max"></span>
+          </div>
+          <div id="usage-chart" class="chart"></div>
+          <div class="chart-axis"><span id="axis-start"></span><span id="axis-end"></span></div>
+          <div id="chart-tooltip" class="chart-tooltip" hidden></div>
+        </div>
+        <table class="project-table">
+          <thead>
+            <tr><th>專案</th><th>今日</th><th>累積</th></tr>
+          </thead>
+          <tbody id="project-rows"></tbody>
+        </table>
+        <div class="chart-card tools-card">
+          <div class="chart-head">
+            <span class="chart-title">工具使用</span>
+            <span class="chart-max" id="tools-total"></span>
+          </div>
+          <div id="tool-rows"></div>
+        </div>
+        <div id="stats-empty" class="stats-empty" hidden>
+          還沒有統計資料——完成一輪對話（回覆結束）後就會開始累積。
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
