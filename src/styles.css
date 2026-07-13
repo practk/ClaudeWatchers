@@ -706,3 +706,64 @@ body.mini-mode #view-mini {
   color: #8a8f99;
   font-variant-numeric: tabular-nums;
 }
+
+/* ---- 泡泡通知 ---- */
+
+#bubble-layer {
+  position: fixed;
+  right: 8px;
+  bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 900;
+  pointer-events: none;
+  max-width: min(300px, calc(100vw - 12px));
+}
+
+.bubble {
+  pointer-events: auto;
+  background: #1f2228;
+  border: 1px solid #2c2f36;
+  border-left: 3px solid #3b82f6;
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+  animation: bubble-in 0.18s ease-out;
+}
+
+.bubble-done {
+  border-left-color: #22c55e;
+}
+
+.bubble-waiting {
+  border-left-color: #f59e0b;
+}
+
+.bubble-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.bubble-body {
+  font-size: 0.72rem;
+  color: #8a8f99;
+  overflow-wrap: anywhere;
+}
+
+.bubble-out {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+@keyframes bubble-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
