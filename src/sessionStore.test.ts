@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SessionStore, type HookEvent } from "./sessionStore";
+import { classifyHost, SessionStore, type HookEvent } from "./sessionStore";
 
 function evt(name: string, extra: Partial<HookEvent> = {}): HookEvent {
   return {
@@ -104,10 +104,57 @@ describe("SessionStore 狀態機", () => {
     expect(notice).toBeNull();
   });
 
+  it("事件帶 cw_host 時記錄宿主,後續事件缺 cw_host 不清掉", () => {
+    const store = new SessionStore();
+    store.apply(evt("SessionStart", { source: "startup", cw_host: "vscode|%WT_SESSION%" }));
+    expect(store.get("s1")?.host).toBe("vscode");
+
+    store.apply(evt("PostToolUse"));
+    expect(store.get("s1")?.host).toBe("vscode");
+  });
+
+  it("無 cw_host 的 session 宿主為 unknown", () => {
+    const store = new SessionStore();
+    store.apply(evt("SessionStart", { source: "startup" }));
+    expect(store.get("s1")?.host).toBe("unknown");
+  });
+
   it("缺 session_id 或 hook_event_name 的事件應忽略", () => {
     const store = new SessionStore();
     store.apply({ hook_event_name: "Stop" } as HookEvent);
     store.apply({ session_id: "x" } as unknown as HookEvent);
     expect(store.list()).toHaveLength(0);
+  });
+});
+
+describe("classifyHost 宿主判別(hook header 值:TERM_PROGRAM|WT_SESSION|VSCODE_PID)", () => {
+  it("TERM_PROGRAM=vscode → vscode(整合終端機)", () => {
+    expect(classifyHost("vscode|%WT_SESSION%|%VSCODE_PID%")).toBe("vscode");
+    expect(classifyHost("vscode|a1b2c3d4-0000-0000-0000-000000000000|123")).toBe("vscode");
+  });
+
+  it("VSCODE_PID 有展開的值 → vscode(擴充面板 session 沒有 TERM_PROGRAM)", () => {
+    expect(classifyHost("%TERM_PROGRAM%|%WT_SESSION%|43268")).toBe("vscode");
+  });
+
+  it("WT_SESSION 有展開的值 → terminal(優先於 VSCODE_PID:從 VS Code 開的 WT 仍是終端機)", () => {
+    expect(classifyHost("%TERM_PROGRAM%|a1b2c3d4-0000-0000-0000-000000000000|%VSCODE_PID%")).toBe("terminal");
+    expect(classifyHost("%TERM_PROGRAM%|a1b2c3d4-0000-0000-0000-000000000000|43268")).toBe("terminal");
+  });
+
+  it("TERM_PROGRAM 是其他終端機 → terminal", () => {
+    expect(classifyHost("mintty|%WT_SESSION%|%VSCODE_PID%")).toBe("terminal");
+  });
+
+  it("變數未展開(cmd 對未定義變數保留 %VAR% 原文)或空值 → unknown", () => {
+    expect(classifyHost("%TERM_PROGRAM%|%WT_SESSION%|%VSCODE_PID%")).toBe("unknown");
+    expect(classifyHost("||")).toBe("unknown");
+    expect(classifyHost("")).toBe("unknown");
+    expect(classifyHost(undefined)).toBe("unknown");
+  });
+
+  it("舊版兩欄位 header 仍相容", () => {
+    expect(classifyHost("vscode|%WT_SESSION%")).toBe("vscode");
+    expect(classifyHost("%TERM_PROGRAM%|%WT_SESSION%")).toBe("unknown");
   });
 });

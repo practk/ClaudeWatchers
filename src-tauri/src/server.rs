@@ -85,9 +85,19 @@ pub fn start(app: AppHandle) {
                     let _ = request.respond(tiny_http::Response::from_string("ok"));
                 }
                 (tiny_http::Method::Post, "/event") => {
+                    // hook 端用 header 附帶宿主環境變數（TERM_PROGRAM|WT_SESSION），
+                    // 注入 payload 讓前端判斷點擊跳轉方式
+                    let host_header = request
+                        .headers()
+                        .iter()
+                        .find(|h| h.field.equiv("X-Claude-Host"))
+                        .map(|h| h.value.as_str().to_string());
                     let mut body = String::new();
                     if request.as_reader().read_to_string(&mut body).is_ok() {
-                        if let Ok(payload) = serde_json::from_str::<serde_json::Value>(&body) {
+                        if let Ok(mut payload) = serde_json::from_str::<serde_json::Value>(&body) {
+                            if let (Some(host), Some(obj)) = (host_header, payload.as_object_mut()) {
+                                obj.insert("cw_host".into(), serde_json::Value::String(host));
+                            }
                             record_usage_on_stop(&app, &payload);
                             let _ = app.emit("claude-event", payload);
                         }

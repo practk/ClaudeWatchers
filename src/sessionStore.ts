@@ -3,6 +3,25 @@
 
 export type SessionStatus = "idle" | "working" | "waiting" | "done";
 
+/** session 跑在哪個宿主程式,決定點擊跳轉的方式 */
+export type SessionHost = "vscode" | "terminal" | "unknown";
+
+/**
+ * 解析 hook header 的宿主字串,格式 `TERM_PROGRAM|WT_SESSION|VSCODE_PID`。
+ * cmd 對未定義變數會保留 `%VAR%` 原文,視同無值。
+ * - TERM_PROGRAM=vscode:整合終端機;VSCODE_PID:擴充面板(extension host 生的 process 沒有 TERM_PROGRAM)
+ * - WT_SESSION 優先於 VSCODE_PID:從 VS Code 開的 Windows Terminal 仍算終端機
+ */
+export function classifyHost(raw: string | undefined): SessionHost {
+  if (!raw) return "unknown";
+  const [term = "", wt = "", vscodePid = ""] = raw.split("|");
+  const expanded = (v: string) => v !== "" && !v.startsWith("%");
+  if (term.toLowerCase() === "vscode") return "vscode";
+  if (expanded(term) || expanded(wt)) return "terminal";
+  if (expanded(vscodePid)) return "vscode";
+  return "unknown";
+}
+
 export interface HookEvent {
   hook_event_name: string;
   session_id: string;
@@ -17,6 +36,7 @@ export interface SessionInfo {
   project: string;
   cwd: string;
   status: SessionStatus;
+  host: SessionHost;
   /** 進入 working 的時間，用來顯示經過時間 */
   workingSince: number | null;
   lastEventAt: number;
@@ -72,6 +92,10 @@ export class SessionStore {
     if (event.cwd) {
       session.cwd = event.cwd;
       session.project = projectNameOf(event.cwd);
+    }
+    if (typeof event.cw_host === "string") {
+      const host = classifyHost(event.cw_host);
+      if (host !== "unknown") session.host = host;
     }
 
     let notice: Notice | null = null;
@@ -152,6 +176,7 @@ export class SessionStore {
         project: projectNameOf(event.cwd),
         cwd: event.cwd ?? "",
         status: "idle",
+        host: "unknown",
         workingSince: null,
         lastEventAt: now,
         lastEventName: event.hook_event_name,

@@ -6,6 +6,7 @@ export interface MiniRow {
   status: SessionStatus;
   project: string;
   detail: string;
+  sessionId: string;
 }
 
 const STATUS_TEXT: Record<Exclude<SessionStatus, "working">, string> = {
@@ -19,6 +20,7 @@ export function buildMiniRows(sessions: SessionInfo[], now: number): MiniRow[] {
     status: s.status,
     project: s.project,
     detail: s.status === "working" ? `⏱ ${formatElapsed(s.workingSince, now)}` : STATUS_TEXT[s.status],
+    sessionId: s.sessionId,
   }));
 }
 

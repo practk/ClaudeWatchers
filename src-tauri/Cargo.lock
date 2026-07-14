@@ -481,7 +481,7 @@ checksum = "6e4de3bc4ea267985becf712dc6d9eed8b04c953b3fcfb339ebc87acd9804901"
 
 [[package]]
 name = "claudewatchers"
-version = "0.6.0"
+version = "0.8.0"
 dependencies = [
  "chrono",
  "serde",
@@ -491,6 +491,7 @@ dependencies = [
  "tauri-plugin-notification",
  "tauri-plugin-single-instance",
  "tiny_http",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]

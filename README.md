@@ -30,8 +30,13 @@ npm run tauri build
 （`PreToolUse` 需設 `"matcher": "AskUserQuestion"` 只轉發選項提問，其餘六個不設 matcher）：
 
 ```
-curl.exe -s -m 1 -o nul -X POST http://127.0.0.1:47821/event -H "Content-Type: application/json" --data-binary @-
+curl.exe -s -m 1 -o nul -X POST http://127.0.0.1:47821/event -H "Content-Type: application/json" -H "X-Claude-Host: %TERM_PROGRAM%|%WT_SESSION%|%VSCODE_PID%" --data-binary @-
 ```
+
+`X-Claude-Host` header 帶上宿主環境變數（VS Code 整合終端機有 `TERM_PROGRAM=vscode`、
+Windows Terminal 有 `WT_SESSION`、VS Code 擴充面板的 session 只有 `VSCODE_PID`），
+供點擊跳轉判斷該 session 跑在哪個程式。
+未定義的變數 cmd 會保留 `%VAR%` 原文，server 端視同無值，因此舊指令（沒有此 header）也相容。
 
 （hooks 在 session 啟動時載入，安裝後需開新 session 才生效。）
 
@@ -54,6 +59,17 @@ curl.exe -X POST http://127.0.0.1:47821/event -H "Content-Type: application/json
 每輪對話結束（`Stop` 事件）時解析該 session 的 transcript JSONL，以訊息 id 去重加總 `usage`，
 用「session 快照差額」制累積到「日期 × 專案」，落地於 `%APPDATA%\com.practk8001.claudewatchers\usage.json`。
 面板「用量統計」分頁顯示今日/近7日/累積輸出量、近 14 天長條圖與專案排行。
+
+## 點擊跳轉(v0.8.0)
+
+點擊 session 卡片(主畫面)或列(縮小模式)切換到該 session 所在的視窗。依宿主路由:
+
+- **VS Code**(hook header 帶 `TERM_PROGRAM=vscode` 或 `VSCODE_PID`,涵蓋整合終端機與擴充面板):執行 `code <cwd>`,單一實例機制會聚焦已開啟該資料夾的視窗。
+- **獨立終端機**(header 帶 `WT_SESSION` 等):Win32 `EnumWindows` 找標題含專案名的終端機視窗(Windows Terminal / 傳統主控台 class);Claude Code 會把分頁標題改成任務摘要導致比對不到,此時若終端機視窗只有一個就直接聚焦它。
+- **未知**(hook 未更新或無環境資訊):放寬為任何標題含專案名的視窗;找不到只跳錯誤通知,不會強制開 VS Code。
+
+比對一律排除監控程式自己的視窗(否則點「ClaudeWatchers」專案會聚焦到自己)。
+已知限制:Windows Terminal 視窗標題只反映作用中分頁;開多個終端機視窗且標題都比對不到時會報找不到。
 
 ## 通知方式(v0.7.2,v0.7.3 修訂)
 

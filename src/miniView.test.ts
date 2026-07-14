@@ -15,6 +15,7 @@ function session(over: Partial<SessionInfo> = {}): SessionInfo {
     project: "MyProject",
     cwd: "C:/dev/MyProject",
     status: "idle",
+    host: "unknown",
     workingSince: null,
     lastEventAt: 0,
     lastEventName: "SessionStart",
@@ -25,7 +26,14 @@ function session(over: Partial<SessionInfo> = {}): SessionInfo {
 describe("buildMiniRows", () => {
   it("working 顯示經過時間", () => {
     const rows = buildMiniRows([session({ status: "working", workingSince: 0 })], 90_000);
-    expect(rows).toEqual([{ status: "working", project: "MyProject", detail: "⏱ 1 分 30 秒" }]);
+    expect(rows).toEqual([
+      { status: "working", project: "MyProject", detail: "⏱ 1 分 30 秒", sessionId: "s1" },
+    ]);
+  });
+
+  it("列帶 sessionId 供點擊跳轉", () => {
+    const rows = buildMiniRows([session({ sessionId: "abc-123" })], 0);
+    expect(rows[0].sessionId).toBe("abc-123");
   });
 
   it("其他狀態顯示狀態文字", () => {

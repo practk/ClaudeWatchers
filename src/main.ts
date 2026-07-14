@@ -206,7 +206,7 @@ function renderMini(): void {
       : rows
           .map(
             (r) => `
-    <div class="mini-row">
+    <div class="mini-row" data-sid="${escapeHtml(r.sessionId)}" title="點擊切換到該視窗">
       <i class="dot dot-${r.status}"></i>
       <span class="mini-project" title="${escapeHtml(r.project)}">${escapeHtml(r.project)}</span>
       <span class="mini-detail">${escapeHtml(r.detail)}</span>
@@ -255,7 +255,7 @@ function render(): void {
   listEl.innerHTML = sessions
     .map(
       (s) => `
-    <div class="session-card status-${s.status}">
+    <div class="session-card status-${s.status}" data-sid="${escapeHtml(s.sessionId)}" title="點擊切換到該視窗">
       <div class="session-head">
         <span class="badge badge-${s.status}">${STATUS_LABEL[s.status]}</span>
         <span class="project" title="${escapeHtml(s.cwd)}">${escapeHtml(s.project)}</span>
@@ -267,6 +267,34 @@ function render(): void {
     </div>`
     )
     .join("");
+}
+
+// ---- 點擊卡片切換到該 session 的視窗 ----
+
+/**
+ * 依宿主路由：
+ * - vscode → `code <cwd>`，單一實例機制會聚焦已開啟該資料夾的視窗
+ * - terminal → Win32 找標題含專案名的終端機視窗聚焦
+ * - unknown（hook 未更新或無環境資訊）→ 任何標題含專案名的視窗；找不到只報錯，不強制開 VS Code
+ */
+function jumpToSession(s: SessionInfo): void {
+  const jump =
+    s.host === "vscode"
+      ? invoke("open_in_editor", { cwd: s.cwd })
+      : invoke("focus_window", { titleHint: s.project, terminalOnly: s.host === "terminal" });
+  jump.catch((err) => notify("⚠️ 無法切換視窗", String(err), "info"));
+}
+
+function setupJumpToSession(): void {
+  const bind = (containerId: string, rowSelector: string) => {
+    document.querySelector<HTMLDivElement>(containerId)!.addEventListener("click", (e) => {
+      const sid = (e.target as HTMLElement).closest<HTMLElement>(rowSelector)?.dataset.sid;
+      const session = sid ? store.get(sid) : undefined;
+      if (session) jumpToSession(session);
+    });
+  };
+  bind("#session-list", ".session-card");
+  bind("#mini-list", ".mini-row");
 }
 
 function escapeHtml(text: string): string {
@@ -534,6 +562,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   setupTabs();
   setupSettings();
   setupMiniMode();
+  setupJumpToSession();
   setupChartTooltip();
   applyAlwaysOnTop();
 

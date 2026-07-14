@@ -110,6 +110,12 @@ body {
   border-radius: 8px;
   padding: 10px 12px;
   margin-bottom: 8px;
+  cursor: pointer;
+}
+
+.session-card:hover {
+  background: #24272e;
+  border-color: #3a3e47;
 }
 
 .session-card.status-working {
@@ -671,10 +677,16 @@ body.mini-mode #view-mini {
   height: 28px;
   padding: 0 10px;
   font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.mini-row:hover {
+  background: #24272e;
 }
 
 .mini-empty {
   color: #8a8f99;
+  cursor: default;
 }
 
 .dot {
