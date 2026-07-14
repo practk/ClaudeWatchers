@@ -20,11 +20,14 @@ import { buildMiniRows, miniWindowHeight, MINI_WIDTH } from "./miniView";
 import {
   aggregateTools,
   buildHeatmap,
+  computeCostUsd,
   computeMilestones,
   computeStreak,
   dateKey,
   displayToolName,
   formatTokens,
+  formatUsd,
+  MODEL_PRICING,
   summarize,
   type ToolsDaily,
   type TokenTotals,
@@ -469,6 +472,21 @@ function renderStats(s: UsageSummary): void {
   byId("tile-week").title = describeTotals(s.last7);
   byId("tile-all").textContent = formatTokens(s.allTime.output_tokens);
   byId("tile-all").title = describeTotals(s.allTime);
+
+  byId("cost-rows").innerHTML = MODEL_PRICING.map((p) => {
+    const parts = [
+      `輸入 ${formatUsd((s.allTime.input_tokens * p.input) / 1e6)}`,
+      `輸出 ${formatUsd((s.allTime.output_tokens * p.output) / 1e6)}`,
+      `快取寫入 ${formatUsd((s.allTime.cache_creation_input_tokens * p.cacheWrite) / 1e6)}`,
+      `快取讀取 ${formatUsd((s.allTime.cache_read_input_tokens * p.cacheRead) / 1e6)}`,
+    ].join("｜");
+    return `
+    <div class="cost-row" title="${escapeHtml(parts)}">
+      <span class="cost-model">${escapeHtml(p.name)}</span>
+      <span class="cost-rates">$${p.input}/$${p.output} per MTok</span>
+      <span class="cost-value">${formatUsd(computeCostUsd(s.allTime, p))}</span>
+    </div>`;
+  }).join("");
 
   const max = Math.max(...s.days.map((d) => d.totals.output_tokens));
   byId("chart-max").textContent = max > 0 ? `峰值 ${formatTokens(max)}` : "";

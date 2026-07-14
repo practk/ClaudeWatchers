@@ -312,6 +312,37 @@ export function computeMilestones(
   ];
 }
 
+// ---- API 等值花費換算 ----
+
+/** USD / 每百萬 tokens。寫死的時價(2026-07 查表);快取寫入採 5 分鐘 TTL 價(輸入 1.25 倍)、讀取為輸入 0.1 倍 */
+export interface ModelPricing {
+  name: string;
+  input: number;
+  output: number;
+  cacheWrite: number;
+  cacheRead: number;
+}
+
+export const MODEL_PRICING: ModelPricing[] = [
+  { name: "Fable 5", input: 10, output: 50, cacheWrite: 12.5, cacheRead: 1 },
+  { name: "Opus 4.8", input: 5, output: 25, cacheWrite: 6.25, cacheRead: 0.5 },
+];
+
+export function computeCostUsd(t: TokenTotals, p: ModelPricing): number {
+  return (
+    (t.input_tokens * p.input +
+      t.output_tokens * p.output +
+      t.cache_creation_input_tokens * p.cacheWrite +
+      t.cache_read_input_tokens * p.cacheRead) /
+    1_000_000
+  );
+}
+
+export function formatUsd(n: number): string {
+  if (n > 0 && n < 0.01) return "<$0.01";
+  return `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
 /** 12,345 → "12.3k"、7,802,080 → "7.80M" */
 export function formatTokens(n: number): string {
   if (n < 1000) return String(n);

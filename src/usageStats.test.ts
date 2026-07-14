@@ -2,13 +2,16 @@ import { describe, expect, it } from "vitest";
 import {
   aggregateTools,
   buildHeatmap,
+  computeCostUsd,
   computeMilestones,
   computeStreak,
   displayToolName,
   EMPTY_TOTALS,
   formatTokens,
+  formatUsd,
   heatLevel,
   lastNDays,
+  MODEL_PRICING,
   summarize,
   type TokenTotals,
   type UsageDaily,
@@ -151,5 +154,27 @@ describe("usageStats", () => {
     expect(formatTokens(1234)).toBe("1.23k");
     expect(formatTokens(73228)).toBe("73.2k");
     expect(formatTokens(7802080)).toBe("7.80M");
+  });
+
+  it("computeCostUsd 依 per-MTok 單價換算四種 token", () => {
+    const totals: TokenTotals = {
+      input_tokens: 1_000_000,
+      output_tokens: 1_000_000,
+      cache_creation_input_tokens: 1_000_000,
+      cache_read_input_tokens: 1_000_000,
+    };
+    const fable = MODEL_PRICING.find((p) => p.name === "Fable 5")!;
+    const opus = MODEL_PRICING.find((p) => p.name === "Opus 4.8")!;
+    // Fable 5: 10 + 50 + 12.5 + 1;Opus 4.8: 5 + 25 + 6.25 + 0.5
+    expect(computeCostUsd(totals, fable)).toBeCloseTo(73.5);
+    expect(computeCostUsd(totals, opus)).toBeCloseTo(36.75);
+    expect(computeCostUsd(EMPTY_TOTALS, fable)).toBe(0);
+  });
+
+  it("formatUsd 兩位小數與千分位;極小值顯示 <$0.01", () => {
+    expect(formatUsd(1234.567)).toBe("$1,234.57");
+    expect(formatUsd(36.75)).toBe("$36.75");
+    expect(formatUsd(0)).toBe("$0.00");
+    expect(formatUsd(0.004)).toBe("<$0.01");
   });
 });
